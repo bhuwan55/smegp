@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'postgres', #'smegp'
         'USER': 'postgres', 
         'PASSWORD': 'Admin12345', #'postgres'
-        'HOST': 'sms.postgres.database.azure.com', 'localhost'
+        'HOST': 'sms.postgres.database.azure.com', #'localhost'
         'PORT': '5432',
     }
 }

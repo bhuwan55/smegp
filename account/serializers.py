@@ -9,6 +9,7 @@ from school.models import  School
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
+        model = User
         fields = (
             'id',
             'first_name',
