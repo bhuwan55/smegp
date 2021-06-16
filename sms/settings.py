@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'sms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'smegp', 
+        'NAME': 'postgres', #'smegp'
         'USER': 'postgres', 
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1', 
+        'PASSWORD': 'Admin12345', #'postgres'
+        'HOST': 'sms.postgres.database.azure.com', 'localhost'
         'PORT': '5432',
     }
 }
