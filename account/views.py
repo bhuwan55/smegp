@@ -1,13 +1,15 @@
 from rest_framework.views import APIView
 from .serializers import UserLoginSerializer, UserRegistrationSerializer, \
     AdminRegisterSerializer,ParentRegisterSerializer, SponserRegisterSerializer,\
-        StaffRegisterSerializer
+        StaffRegisterSerializer, UserUpdateSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .models import User
 from django.contrib.auth import authenticate, login, logout
+from django.http import Http404
+from .permissions import IsOwnerOrNo
 
 
 
@@ -32,6 +34,35 @@ class UserRegistrationView(APIView):
 
             return Response(response, status=status_code)
 
+
+class UserUpdateDeleteView(APIView):
+    serializer_class = UserUpdateSerializer
+    permission_classes = (IsAuthenticated, IsOwnerOrNo,)
+
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = UserUpdateSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserLoginView(APIView):
@@ -290,7 +321,7 @@ class StaffLoginView(APIView):
                 'refresh': serializer.validated_data['refresh'],
                 'authenticatedUser': {
                     'username': serializer.data['username'],
-                    'role': serializer.data['role']
+                    'role': serializer.data['role'],
                 }
             }
 

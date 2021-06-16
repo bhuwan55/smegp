@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-wbm@bsiyh0-z!^=4h0+d!h=5&^#1m+1%n!i_$#7t$x^z71!4xb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'sms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'school', 
+        'NAME': 'smegp', 
         'USER': 'postgres', 
         'PASSWORD': 'postgres',
         'HOST': '127.0.0.1', 

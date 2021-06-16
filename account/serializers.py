@@ -9,7 +9,6 @@ from school.models import  School
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
         fields = (
             'id',
             'first_name',
@@ -29,9 +28,34 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         auth_user = User.objects.create_user(**validated_data)
-        print(auth_user)
         auth_user.save()
         return auth_user
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+            'contact_number',
+            'address',
+        )
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def update(self, instance ,validated_data):
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.contact_number = validated_data.get('contact_number', instance.contact_number)
+        instance.address = validated_data.get('address', instance.address)
+        instance.username = validated_data.get('username', instance.username)
+        instance.save()
+        return instance
+
 
 
 class UserLoginSerializer(serializers.Serializer):
