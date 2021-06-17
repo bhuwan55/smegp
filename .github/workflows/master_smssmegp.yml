@@ -24,17 +24,17 @@ jobs:
 
     - name: Create and start virtual environment
       run: |
-        python -m virtualenv venv
-        source venv/bin/activate
+        python -m venv antenv3.6
+        source antenv3.6/bin/activate
 
     - name: Install dependencies
       run: pip install -r requirements.txt
       
     - name: Remove decode from simplejwt
       run: |
-        cd venv/lib/python3.6/site-packages/
+        cd antenv3.6/lib/python3.6/site-packages/
         ls
-        cd venv/lib/python3.6/site-packages/rest_framework_simplejwt/
+        cd antenv3.6/lib/python3.6/site-packages/rest_framework_simplejwt/
         rm backends.py
         wget https://raw.githubusercontent.com/bhuwan55/files/main/backends.py
         
