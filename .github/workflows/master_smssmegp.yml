@@ -23,16 +23,15 @@ jobs:
         python-version: '3.6'
 
     - name: Create and start virtual environment
-      run: |
+      run:
         python -m venv antenv3.6
-        source antenv3.6/bin/activate
+        # source antenv3.6/bin/activate
 
     - name: Install dependencies
       run: pip install -r requirements.txt
       
     - name: Remove decode from simplejwt
       run: |
-        deactivate
         source env/bin/activate
         cd env/lib/python3.6/site-packages/rest_framework_simplejwt/
         rm backends.py
