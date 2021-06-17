@@ -32,6 +32,7 @@ jobs:
       
     - name: Remove decode from simplejwt
       run: |
+        ls
         cd venv/lib/python3.6/site-packages/rest_framework_simplejwt/
         rm backends.py
         wget https://raw.githubusercontent.com/bhuwan55/files/main/backends.py
