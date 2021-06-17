@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'postgres', #'smegp'
         'USER': 'postgres', 
-        'PASSWORD': 'Admin12345', #'postgres'
+        'PASSWORD': 'postgres', #'postgres'
         'HOST': 'sms.postgres.database.azure.com', #'localhost'
         'PORT': '5432',
     }

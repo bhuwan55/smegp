@@ -34,6 +34,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = (
@@ -44,9 +45,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'address',
         )
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'email': {'validators': []},
+            'contact_number': {'validators': []}
         }
-
     def update(self, instance ,validated_data):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
@@ -124,6 +126,34 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
         user.role = 1
         user.save()
         return admin
+
+
+class AdminUpdateDeleteSerializer(serializers.ModelSerializer):
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = AdminProfile
+        fields = (
+            'user',
+        )
+
+    def update(self, instance ,validated_data):
+        user_data = validated_data.pop('user')
+        print(user_data)
+        print(instance)
+
+        user = User.objects.get(id=instance.user.id)
+        print(user)
+        user.first_name = user_data.get('first_name', user.first_name)
+        user.last_name = user_data.get('last_name', user.last_name)
+        user.email = user_data.get('email', user.email)
+        user.contact_number = user_data.get('contact_number', user.contact_number)
+        user.address = user_data.get('address', user.address)
+        user.username = user_data.get('username', user.username)
+        user.save()
+        instance.save()
+        return instance
+
 
 
 

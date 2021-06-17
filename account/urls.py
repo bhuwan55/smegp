@@ -2,7 +2,8 @@ from django.urls import path
 from rest_framework_simplejwt import views as jwt_views
 from .views import UserLoginView, UserRegistrationView, UserLogoutView, AdminRegistrationView, \
                                 AdminLoginView, ParentRegistrationView, ParentLoginView, SponserRegistrationView, \
-                                    SponserLoginView, StaffRegistrationView, StaffLoginView, UserUpdateDeleteView
+                                    SponserLoginView, StaffRegistrationView, StaffLoginView, UserUpdateDeleteView\
+                                        ,AdminUpdateDeleteView
 
 app_name = "account"
 
@@ -18,6 +19,7 @@ urlpatterns = [
 
     path('register/admin', AdminRegistrationView.as_view(), name='register_admin'),
     path('login/admin', AdminLoginView.as_view(), name='login_admin'),
+    path('update/admin/<int:pk>/', AdminUpdateDeleteView.as_view(), name='update_admin'),
 
     path('register/parent', ParentRegistrationView.as_view(), name='register_parent'),
     path('login/parent', ParentLoginView.as_view(), name='login_parent'),

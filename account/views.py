@@ -1,15 +1,15 @@
 from rest_framework.views import APIView
 from .serializers import UserLoginSerializer, UserRegistrationSerializer, \
     AdminRegisterSerializer,ParentRegisterSerializer, SponserRegisterSerializer,\
-        StaffRegisterSerializer, UserUpdateSerializer
+        StaffRegisterSerializer, UserUpdateSerializer, AdminUpdateDeleteSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .models import User
+from .models import User, AdminProfile
 from django.contrib.auth import authenticate, login, logout
 from django.http import Http404
-from .permissions import IsOwnerOrNo
+from .permissions import IsOwnerOrNo, IsOwnerOrNoROles
 
 
 
@@ -131,6 +131,39 @@ class AdminRegistrationView(APIView):
             }
 
             return Response(response, status=status_code)
+
+
+class AdminUpdateDeleteView(APIView):
+    serializer_class = AdminUpdateDeleteSerializer
+    permission_classes = (IsAuthenticated, IsOwnerOrNoROles)
+
+    def get_object(self, pk):
+        try:
+            return AdminProfile.objects.get(pk=pk)
+        except AdminProfile.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        print(instance.user)
+        serializer = AdminUpdateDeleteSerializer(instance, data=request.data)
+        print(serializer)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        user = User.objects.get(id=instance.user.id)
+        user.delete()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AdminLoginView(APIView):
