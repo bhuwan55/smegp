@@ -29,6 +29,13 @@ jobs:
 
     - name: Install dependencies
       run: pip install -r requirements.txt
+      
+    - name: Remove decode from simplejwt
+      run: |
+        cd venv/lib/python3.6/site-packages/rest_framework_simplejwt/
+        rm backends.py
+        wget https://raw.githubusercontent.com/bhuwan55/files/main/backends.py
+        
 
     # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
