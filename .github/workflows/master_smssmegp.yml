@@ -20,24 +20,17 @@ jobs:
     - name: Set up Python version
       uses: actions/setup-python@v1
       with:
-        python-version: '3.6'
+        python-version: '3.7'
 
     - name: Create and start virtual environment
       run:
-        python -m venv antenv3.6
-        # source antenv3.6/bin/activate
+        python -m venv venv
+        source venv/bin/activate
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
-      
-    - name: Remove decode from simplejwt
-      run: |
-        source env/bin/activate
-        cd env/lib/python3.6/site-packages/rest_framework_simplejwt/
-        rm backends.py
-        wget https://raw.githubusercontent.com/bhuwan55/files/main/backends.py
+      run: pip install -r requirements.txt 
         
-
+        
     # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
     - name: Upload artifact for deployment jobs
@@ -46,7 +39,7 @@ jobs:
         name: python-app
         path: |
           .
-          !env/
+          !venv/
 
   deploy:
     runs-on: ubuntu-latest
