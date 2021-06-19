@@ -23,7 +23,7 @@ jobs:
         python-version: '3.7'
 
     - name: Create and start virtual environment
-      run:
+      run: |
         python -m venv venv
         source venv/bin/activate
 
