@@ -80,6 +80,16 @@ WSGI_APPLICATION = 'sms.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres', #'smegp'
+        'USER': 'postgres', 
+        'PASSWORD': 'postgres', #'postgres'
+        'HOST': 'sms.postgres.database.azure.com', #'localhost'
+        'PORT': '5432',
+    }
+}
 
 
 SIMPLE_JWT = {
