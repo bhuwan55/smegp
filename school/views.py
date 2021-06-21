@@ -25,15 +25,18 @@ class ChooseSchoolView(APIView):
 
 
     def post(self, request):
-        id = request.POST.get('id')
-        try:
-            school = School.objects.get(id=id)
-        except School.DoesNotExist:
-            error = "school does not exists"
-            return Response(error)
-        data = {
-            "school":school.name,
-        }
-        return Response(data)
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
 
+        if valid:
+            id = serializer.validated_data['id']
+            try:
+                school = School.objects.get(id=id)
+            except School.DoesNotExist:
+                error = "school does not exists"
+                return Response(error)
+            data = {
+            "school":school.name,
+            }
+        return Response(data)
 

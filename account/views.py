@@ -1,12 +1,15 @@
 from rest_framework.views import APIView
+from rest_framework import generics
 from .serializers import UserLoginSerializer, UserRegistrationSerializer, \
     AdminRegisterSerializer,ParentRegisterSerializer, SponserRegisterSerializer,\
-        StaffRegisterSerializer, UserUpdateSerializer, AdminUpdateDeleteSerializer
+        StaffRegisterSerializer, UserUpdateSerializer, AdminUpdateDeleteSerializer,\
+            ParentUpdateDeleteSerializer, SponserUpdateDeleteSerializer, StaffUpdateDeleteSerializer,\
+                ChangePasswordSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .models import User, AdminProfile
+from .models import User, AdminProfile, ParentProfile, SponserProfile, StaffProfile
 from django.contrib.auth import authenticate, login, logout
 from django.http import Http404
 from .permissions import IsOwnerOrNo, IsOwnerOrNoROles
@@ -63,6 +66,41 @@ class UserUpdateDeleteView(APIView):
         instance = self.get_object(pk)
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    """
+    An endpoint for changing password.
+    """
+    serializer_class = ChangePasswordSerializer
+    model = User
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            # Check old password
+            if not self.object.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            # set_password also hashes the password that the user will get
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            response = {
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'Password updated successfully',
+                'data': []
+            }
+
+            return Response(response)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginView(APIView):
@@ -152,7 +190,6 @@ class AdminUpdateDeleteView(APIView):
         instance = self.get_object(pk)
         print(instance.user)
         serializer = AdminUpdateDeleteSerializer(instance, data=request.data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -219,6 +256,36 @@ class ParentRegistrationView(APIView):
             return Response(response, status=status_code)
 
 
+class ParentUpdateDeleteView(APIView):
+    serializer_class = ParentUpdateDeleteSerializer
+    permission_classes = (IsAuthenticated, IsOwnerOrNoROles)
+
+    def get_object(self, pk):
+        try:
+            return ParentProfile.objects.get(pk=pk)
+        except ParentProfile.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = ParentUpdateDeleteSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        user = User.objects.get(id=instance.user.id)
+        user.delete()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class ParentLoginView(APIView):
     serializer_class = UserLoginSerializer
@@ -274,6 +341,36 @@ class SponserRegistrationView(APIView):
             return Response(response, status=status_code)
 
 
+class SponserUpdateDeleteView(APIView):
+    serializer_class = SponserUpdateDeleteSerializer
+    permission_classes = (IsAuthenticated, IsOwnerOrNoROles)
+
+    def get_object(self, pk):
+        try:
+            return SponserProfile.objects.get(pk=pk)
+        except SponserProfile.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = SponserUpdateDeleteSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        user = User.objects.get(id=instance.user.id)
+        user.delete()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class SponserLoginView(APIView):
     serializer_class = UserLoginSerializer
@@ -328,7 +425,37 @@ class StaffRegistrationView(APIView):
 
             return Response(response, status=status_code)
         
+
+class StaffUpdateDeleteView(APIView):
+    serializer_class = StaffUpdateDeleteSerializer
+    permission_classes = (IsAuthenticated, IsOwnerOrNoROles)
+
+    def get_object(self, pk):
+        try:
+            return StaffProfile.objects.get(pk=pk)
+        except StaffProfile.DoesNotExist:
+            raise Http404
     
+    def get(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        serializer = StaffUpdateDeleteSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        instance = self.get_object(pk)
+        user = User.objects.get(id=instance.user.id)
+        user.delete()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class StaffLoginView(APIView):
     serializer_class = UserLoginSerializer
