@@ -81,17 +81,6 @@ WSGI_APPLICATION = 'sms.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'smegp', #'postgres'
-        'USER': 'postgres', 
-        'PASSWORD': 'postgres', #'Admin12345'
-        'HOST': 'localhost', #'sms.postgres.database.azure.com'
-        'PORT': '5432',
-    }
-}
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
