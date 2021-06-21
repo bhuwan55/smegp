@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt import views as jwt_views
 from .views import UserLoginView, UserRegistrationView, UserLogoutView, AdminRegistrationView, \
                                 AdminLoginView, ParentRegistrationView, ParentLoginView, SponserRegistrationView, \
                                     SponserLoginView, StaffRegistrationView, StaffLoginView, UserUpdateDeleteView\
-                                        ,AdminUpdateDeleteView
+                                        ,AdminUpdateDeleteView, ParentUpdateDeleteView, SponserUpdateDeleteView,\
+                                            StaffUpdateDeleteView, ChangePasswordView
 
 app_name = "account"
 
@@ -14,19 +15,28 @@ urlpatterns = [
 
     path('login/', UserLoginView.as_view(), name='login'),
     path('register/', UserRegistrationView.as_view(), name='register'),
+    path('change_password/', ChangePasswordView.as_view(), name='reset_password'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('update/<int:pk>/', UserUpdateDeleteView.as_view(), name='update'),
 
-    path('register/admin', AdminRegistrationView.as_view(), name='register_admin'),
-    path('login/admin', AdminLoginView.as_view(), name='login_admin'),
+    path('register/admin/', AdminRegistrationView.as_view(), name='register_admin'),
+    path('login/admin/', AdminLoginView.as_view(), name='login_admin'),
     path('update/admin/<int:pk>/', AdminUpdateDeleteView.as_view(), name='update_admin'),
 
-    path('register/parent', ParentRegistrationView.as_view(), name='register_parent'),
-    path('login/parent', ParentLoginView.as_view(), name='login_parent'),
+    path('register/parent/', ParentRegistrationView.as_view(), name='register_parent'),
+    path('login/parent/', ParentLoginView.as_view(), name='login_parent'),
+    path('update/parent/<int:pk>/', ParentUpdateDeleteView.as_view(), name='update_parent'),
 
-    path('register/sponser', SponserRegistrationView.as_view(), name='register_student'),
-    path('login/sponser', SponserLoginView.as_view(), name='login_sponser'),
+    path('register/sponser/', SponserRegistrationView.as_view(), name='register_sponser'),
+    path('login/sponser/', SponserLoginView.as_view(), name='login_sponser'),
+    path('update/sponser/<int:pk>/', SponserUpdateDeleteView.as_view(), name='update_sponser'),
 
-    path('register/staff', StaffRegistrationView.as_view(), name='register_staff'),
-    path('login/staff', StaffLoginView.as_view(), name='login_staff'),
+
+    path('register/staff/', StaffRegistrationView.as_view(), name='register_staff'),
+    path('login/staff/', StaffLoginView.as_view(), name='login_staff'),
+    path('update/staff/<int:pk>/', StaffUpdateDeleteView.as_view(), name='update_staff'),
+
+    path('', include('django.contrib.auth.urls')),
+    path('api/reset_password/' ,include('django_rest_passwordreset.urls', namespace='password_reset')),
+
 ]

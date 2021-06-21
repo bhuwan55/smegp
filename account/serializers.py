@@ -103,6 +103,15 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid login credentials")
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+
+    """
+    Serializer for password change endpoint.
+    """
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
 
 class AdminRegisterSerializer(serializers.ModelSerializer):
     school_id = serializers.IntegerField()
@@ -139,11 +148,8 @@ class AdminUpdateDeleteSerializer(serializers.ModelSerializer):
 
     def update(self, instance ,validated_data):
         user_data = validated_data.pop('user')
-        print(user_data)
-        print(instance)
 
         user = User.objects.get(id=instance.user.id)
-        print(user)
         user.first_name = user_data.get('first_name', user.first_name)
         user.last_name = user_data.get('last_name', user.last_name)
         user.email = user_data.get('email', user.email)
@@ -153,7 +159,6 @@ class AdminUpdateDeleteSerializer(serializers.ModelSerializer):
         user.save()
         instance.save()
         return instance
-
 
 
 
@@ -180,6 +185,30 @@ class ParentRegisterSerializer(serializers.ModelSerializer):
         return parent
 
 
+class ParentUpdateDeleteSerializer(serializers.ModelSerializer):
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = ParentProfile
+        fields = (
+            'user',
+        )
+
+    def update(self, instance ,validated_data):
+        user_data = validated_data.pop('user')
+
+        user = User.objects.get(id=instance.user.id)
+        user.first_name = user_data.get('first_name', user.first_name)
+        user.last_name = user_data.get('last_name', user.last_name)
+        user.email = user_data.get('email', user.email)
+        user.contact_number = user_data.get('contact_number', user.contact_number)
+        user.address = user_data.get('address', user.address)
+        user.username = user_data.get('username', user.username)
+        user.save()
+        instance.save()
+        return instance
+
+
 
 class SponserRegisterSerializer(serializers.ModelSerializer):
     school_id = serializers.IntegerField()
@@ -203,6 +232,29 @@ class SponserRegisterSerializer(serializers.ModelSerializer):
         user.save()
         return sponser
 
+
+class SponserUpdateDeleteSerializer(serializers.ModelSerializer):
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = SponserProfile
+        fields = (
+            'user',
+        )
+
+    def update(self, instance ,validated_data):
+        user_data = validated_data.pop('user')
+
+        user = User.objects.get(id=instance.user.id)
+        user.first_name = user_data.get('first_name', user.first_name)
+        user.last_name = user_data.get('last_name', user.last_name)
+        user.email = user_data.get('email', user.email)
+        user.contact_number = user_data.get('contact_number', user.contact_number)
+        user.address = user_data.get('address', user.address)
+        user.username = user_data.get('username', user.username)
+        user.save()
+        instance.save()
+        return instance
 
 
 class StaffRegisterSerializer(serializers.ModelSerializer):
@@ -228,3 +280,31 @@ class StaffRegisterSerializer(serializers.ModelSerializer):
         user.role = 2
         user.save()
         return staff
+
+
+class StaffUpdateDeleteSerializer(serializers.ModelSerializer):
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = StaffProfile
+        fields = (
+            'user',
+            'staff_type',
+            'monthly_salary',
+        )
+
+    def update(self, instance ,validated_data):
+        user_data = validated_data.pop('user')
+
+        user = User.objects.get(id=instance.user.id)
+        user.first_name = user_data.get('first_name', user.first_name)
+        user.last_name = user_data.get('last_name', user.last_name)
+        user.email = user_data.get('email', user.email)
+        user.contact_number = user_data.get('contact_number', user.contact_number)
+        user.address = user_data.get('address', user.address)
+        user.username = user_data.get('username', user.username)
+        user.save()
+        instance.staff_type = validated_data.get('staff_type', instance.staff_type)
+        instance.monthly_salary = validated_data.get('monthly_salary', instance.monthly_salary)
+        instance.save()
+        return instance
