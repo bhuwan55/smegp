@@ -6,18 +6,18 @@ from .views import UserLoginView, UserRegistrationView, UserLogoutView, AdminReg
                                         ,AdminUpdateDeleteView, ParentUpdateDeleteView, SponserUpdateDeleteView,\
                                             StaffUpdateDeleteView, ChangePasswordView
 
-app_name = "account"
+app_name = 'account'
 
 
 urlpatterns = [
     path('token/obtain/', jwt_views.TokenObtainPairView.as_view(), name='token_create'),
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 
-    path('login/', UserLoginView.as_view(), name='login'),
-    path('register/', UserRegistrationView.as_view(), name='register'),
+    # path('login/', UserLoginView.as_view(), name='login'),
+    # path('register/', UserRegistrationView.as_view(), name='register'),
     path('change_password/', ChangePasswordView.as_view(), name='reset_password'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
-    path('update/<int:pk>/', UserUpdateDeleteView.as_view(), name='update'),
+    # path('update/<int:pk>/', UserUpdateDeleteView.as_view(), name='update'),
 
     path('register/admin/', AdminRegistrationView.as_view(), name='register_admin'),
     path('login/admin/', AdminLoginView.as_view(), name='login_admin'),
@@ -36,7 +36,5 @@ urlpatterns = [
     path('login/staff/', StaffLoginView.as_view(), name='login_staff'),
     path('update/staff/<int:pk>/', StaffUpdateDeleteView.as_view(), name='update_staff'),
 
-    path('', include('django.contrib.auth.urls')),
-    path('api/reset_password/' ,include('django_rest_passwordreset.urls', namespace='password_reset')),
 
 ]
