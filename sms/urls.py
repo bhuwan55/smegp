@@ -22,4 +22,6 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('school.urls')),
+    path('api/reset_password/' ,include('django_rest_passwordreset.urls', namespace='password_reset')),
+
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

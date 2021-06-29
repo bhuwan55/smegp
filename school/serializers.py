@@ -11,4 +11,4 @@ class SchoolSerializer(serializers.ModelSerializer):
 class ChooseSchoolSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     class Meta:
-        fields = ['id']
+        fields = ['id',]

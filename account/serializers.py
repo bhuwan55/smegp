@@ -4,7 +4,8 @@ from django.contrib.auth.models import update_last_login
 from .models import User, AdminProfile, ParentProfile, StaffProfile, SponserProfile
 from django.contrib.auth import authenticate, login
 from school.models import  School
-
+from .sendmail import SendVerificationMail
+from django.core.exceptions import ValidationError
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -29,7 +30,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         auth_user = User.objects.create_user(**validated_data)
-        auth_user.save()
+        # auth_user.save()
         return auth_user
 
 
@@ -45,10 +46,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'address',
         )
         extra_kwargs = {
-            'password': {'write_only': True},
             'email': {'validators': []},
             'contact_number': {'validators': []}
         }
+
     def update(self, instance ,validated_data):
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
@@ -56,9 +57,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.contact_number = validated_data.get('contact_number', instance.contact_number)
         instance.address = validated_data.get('address', instance.address)
         instance.username = validated_data.get('username', instance.username)
-        instance.save()
+        # instance.save()
         return instance
-
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -124,7 +124,6 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
         user = UserRegistrationSerializer(data=validated_data.get('user'))
         valid = user.is_valid(raise_exception=True)
         if valid:
-            user.role = 3
             user.save()
         user = User.objects.get(username=user.validated_data['username'])
 
@@ -147,18 +146,35 @@ class AdminUpdateDeleteSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance ,validated_data):
-        user_data = validated_data.pop('user')
-
-        user = User.objects.get(id=instance.user.id)
-        user.first_name = user_data.get('first_name', user.first_name)
-        user.last_name = user_data.get('last_name', user.last_name)
-        user.email = user_data.get('email', user.email)
-        user.contact_number = user_data.get('contact_number', user.contact_number)
-        user.address = user_data.get('address', user.address)
-        user.username = user_data.get('username', user.username)
-        user.save()
-        instance.save()
         return instance
+    
+    def validate(self, validated_data, *args):
+        user_data = validated_data['user']
+        email = user_data["email"]
+        contact = user_data['contact_number']
+        email_exists = User.objects.filter (email=email).exclude (id=self.instance.user.pk) # excluding the current user from queryset
+        if self.instance.user and self.instance.user.pk and not email_exists:
+            contact_exists = User.objects.filter (contact_number=contact).exclude (pk=self.instance.user.pk)
+            if not contact_exists:
+                user = User.objects.get(id=self.instance.user.id)
+                user.first_name = user_data.get('first_name', user.first_name)
+                user.last_name = user_data.get('last_name', user.last_name)
+
+                user.email = user_data.get('email', user.email)
+                user.contact_number = user_data.get('contact_number', user.contact_number)
+                user.address = user_data.get('address', user.address)
+                user.username = user_data.get('username', user.username)
+                user.save()
+                validation = {
+                'email': email,
+                'contact_number': contact
+            }
+                return validation
+            else:
+                raise ValidationError("User with this Contact Number already exists")
+        else:
+            raise ValidationError("User with this Email already exists")
+
 
 
 
@@ -195,18 +211,34 @@ class ParentUpdateDeleteSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance ,validated_data):
-        user_data = validated_data.pop('user')
-
-        user = User.objects.get(id=instance.user.id)
-        user.first_name = user_data.get('first_name', user.first_name)
-        user.last_name = user_data.get('last_name', user.last_name)
-        user.email = user_data.get('email', user.email)
-        user.contact_number = user_data.get('contact_number', user.contact_number)
-        user.address = user_data.get('address', user.address)
-        user.username = user_data.get('username', user.username)
-        user.save()
-        instance.save()
         return instance
+    
+    def validate(self, validated_data, *args):
+        user_data = validated_data['user']
+        email = user_data["email"]
+        contact = user_data['contact_number']
+        email_exists = User.objects.filter (email=email).exclude (id=self.instance.user.pk) # excluding the current user from queryset
+        if self.instance.user and self.instance.user.pk and not email_exists:
+            contact_exists = User.objects.filter (contact_number=contact).exclude (pk=self.instance.user.pk)
+            if not contact_exists:
+                user = User.objects.get(id=self.instance.user.id)
+                user.first_name = user_data.get('first_name', user.first_name)
+                user.last_name = user_data.get('last_name', user.last_name)
+
+                user.email = user_data.get('email', user.email)
+                user.contact_number = user_data.get('contact_number', user.contact_number)
+                user.address = user_data.get('address', user.address)
+                user.username = user_data.get('username', user.username)
+                user.save()
+                validation = {
+                'email': email,
+                'contact_number': contact
+            }
+                return validation
+            else:
+                raise ValidationError("User with this Contact Number already exists")
+        else:
+            raise ValidationError("User with this Email already exists")
 
 
 
@@ -243,18 +275,34 @@ class SponserUpdateDeleteSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance ,validated_data):
-        user_data = validated_data.pop('user')
-
-        user = User.objects.get(id=instance.user.id)
-        user.first_name = user_data.get('first_name', user.first_name)
-        user.last_name = user_data.get('last_name', user.last_name)
-        user.email = user_data.get('email', user.email)
-        user.contact_number = user_data.get('contact_number', user.contact_number)
-        user.address = user_data.get('address', user.address)
-        user.username = user_data.get('username', user.username)
-        user.save()
-        instance.save()
         return instance
+    
+    def validate(self, validated_data, *args):
+        user_data = validated_data['user']
+        email = user_data["email"]
+        contact = user_data['contact_number']
+        email_exists = User.objects.filter (email=email).exclude (id=self.instance.user.pk) # excluding the current user from queryset
+        if self.instance.user and self.instance.user.pk and not email_exists:
+            contact_exists = User.objects.filter (contact_number=contact).exclude (pk=self.instance.user.pk)
+            if not contact_exists:
+                user = User.objects.get(id=self.instance.user.id)
+                user.first_name = user_data.get('first_name', user.first_name)
+                user.last_name = user_data.get('last_name', user.last_name)
+
+                user.email = user_data.get('email', user.email)
+                user.contact_number = user_data.get('contact_number', user.contact_number)
+                user.address = user_data.get('address', user.address)
+                user.username = user_data.get('username', user.username)
+                user.save()
+                validation = {
+                'email': email,
+                'contact_number': contact
+            }
+                return validation
+            else:
+                raise ValidationError("User with this Contact Number already exists.")
+        else:
+            raise ValidationError("User with this Email already exists.")
 
 
 class StaffRegisterSerializer(serializers.ModelSerializer):
@@ -294,17 +342,33 @@ class StaffUpdateDeleteSerializer(serializers.ModelSerializer):
         )
 
     def update(self, instance ,validated_data):
-        user_data = validated_data.pop('user')
-
-        user = User.objects.get(id=instance.user.id)
-        user.first_name = user_data.get('first_name', user.first_name)
-        user.last_name = user_data.get('last_name', user.last_name)
-        user.email = user_data.get('email', user.email)
-        user.contact_number = user_data.get('contact_number', user.contact_number)
-        user.address = user_data.get('address', user.address)
-        user.username = user_data.get('username', user.username)
-        user.save()
-        instance.staff_type = validated_data.get('staff_type', instance.staff_type)
-        instance.monthly_salary = validated_data.get('monthly_salary', instance.monthly_salary)
-        instance.save()
         return instance
+
+    def validate(self, validated_data, *args):
+        self.instance.monthly_salary = validated_data.get('monthly_salary', self.instance.monthly_salary)
+        self.instance.save()
+        user_data = validated_data['user']
+        email = user_data["email"]
+        contact = user_data['contact_number']
+        email_exists = User.objects.filter (email=email).exclude (id=self.instance.user.pk) # excluding the current user from queryset
+        if self.instance.user and self.instance.user.pk and not email_exists:
+            contact_exists = User.objects.filter (contact_number=contact).exclude (pk=self.instance.user.pk)
+            if not contact_exists:
+                user = User.objects.get(id=self.instance.user.id)
+                user.first_name = user_data.get('first_name', user.first_name)
+                user.last_name = user_data.get('last_name', user.last_name)
+
+                user.email = user_data.get('email', user.email)
+                user.contact_number = user_data.get('contact_number', user.contact_number)
+                user.address = user_data.get('address', user.address)
+                user.username = user_data.get('username', user.username)
+                user.save()
+                validation = {
+                'email': email,
+                'contact_number': contact
+            }
+                return validation
+            else:
+                raise ValidationError("User with this Contact Number already exists.")
+        else:
+            raise ValidationError("User with this Email already exists.")

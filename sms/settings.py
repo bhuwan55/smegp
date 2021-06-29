@@ -45,6 +45,9 @@ INSTALLED_APPS = [
 
     'school',
     'account',
+    'grade',
+    'exam',
+
 ]
 
 MIDDLEWARE = [
@@ -140,6 +143,16 @@ REST_FRAMEWORK = {
     ),
 }
 
+DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
+    "CLASS": "django_rest_passwordreset.tokens.RandomNumberTokenGenerator",
+    "OPTIONS": {
+        "min_number": 000000,
+        "max_number": 999999
+    }
+}
+
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = .2
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -159,6 +172,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'awsumbj2054@gmail.com'
+EMAIL_HOST_PASSWORD = 'sznptkejiiummtyc'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_TO_EMAIL = EMAIL_HOST_USER
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
