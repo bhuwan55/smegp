@@ -87,10 +87,10 @@ WSGI_APPLICATION = 'sms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'smegp', #'postgres'
+        'NAME': 'postgres', #'smegp'
         'USER': 'postgres', 
-        'PASSWORD': 'postgres', #'Admin12345'
-        'HOST': 'localhost', #'sms.postgres.database.azure.com'
+        'PASSWORD': 'Admin12345', #'postgres'
+        'HOST': 'sms.postgres.database.azure.com', #'localhost'
         'PORT': '5432',
     }
 }
@@ -151,7 +151,7 @@ DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
     }
 }
 
-DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = .2
+DJANGO_REST_MULTITOKENAUTH_RESET_TOKEN_EXPIRY_TIME = .1
 
 
 # Internationalization
