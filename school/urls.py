@@ -9,5 +9,7 @@ urlpatterns = [
     path('', ChooseSchoolView.as_view(),name="choose_school" ),
 
     path('school/user/', include('account.urls')),
+    path('school/grade/', include('grade.urls')),
+    path('school/exam/', include('exam.urls')),
 
 ]

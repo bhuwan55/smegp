@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from school.models import School
+from grade.models import Grade
 
 
 class CustomUserManager(BaseUserManager):
@@ -117,7 +118,7 @@ class ParentProfile(models.Model):
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student')
     monthly_fee = models.DecimalField(max_digits=7, decimal_places=2,null=True, blank=True)
-    school = models.ForeignKey('school.School', on_delete=models.CASCADE)
+    grade = models.ForeignKey('grade.Grade', on_delete=models.CASCADE)
 
 
     def __str__(self):

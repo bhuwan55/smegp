@@ -92,11 +92,10 @@ DATABASES = {
         'HOST': 'sms.postgres.database.azure.com', #'localhost'
         'PORT': '5432',
     }
-}
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=20),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': False,
@@ -173,6 +172,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_USE_TLS = True
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'awsumbj2054@gmail.com'
+# EMAIL_HOST_PASSWORD = 'sznptkejiiummtyc'
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
@@ -181,6 +188,7 @@ EMAIL_HOST_USER = 'awsumbj2054@gmail.com'
 EMAIL_HOST_PASSWORD = 'sznptkejiiummtyc'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 DEFAULT_TO_EMAIL = EMAIL_HOST_USER
+
 
 
 # Default primary key field type
