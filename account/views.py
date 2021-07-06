@@ -13,7 +13,7 @@ from .models import User, AdminProfile, ParentProfile, SponserProfile, StaffProf
 from django.contrib.auth import authenticate, login, logout
 from django.http import Http404
 from .permissions import IsOwnerOrNo, IsOwnerOrNoROles
-
+from .sendmail import SendVerificationMail
 
 
 class UserRegistrationView(APIView):
@@ -148,7 +148,6 @@ class UserLogoutView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class AdminRegistrationView(APIView):
     serializer_class = AdminRegisterSerializer
     permission_classes = (AllowAny, )
@@ -159,13 +158,16 @@ class AdminRegistrationView(APIView):
 
         if valid:
             serializer.save()
+            user_data = serializer.data['user']
+            user = User.objects.get(username=user_data['username'])
             status_code = status.HTTP_201_CREATED
 
             response = {
                 'success': True,
                 'statusCode': status_code,
                 'message': 'Admin successfully registered!',
-                'admin': serializer.data
+                'admin': serializer.data,
+                'admin_id': user.admin.id
             }
 
             return Response(response, status=status_code)
@@ -175,12 +177,15 @@ class AdminUpdateDeleteView(APIView):
     serializer_class = AdminUpdateDeleteSerializer
     permission_classes = (IsAuthenticated, IsOwnerOrNoROles)
 
+
     def get_object(self, pk):
         try:
-            return AdminProfile.objects.get(pk=pk)
+            obj = AdminProfile.objects.get(pk=pk)
+            self.check_object_permissions(self.request, obj)
+            return obj
         except AdminProfile.DoesNotExist:
             raise Http404
-    
+
     def get(self, request, pk, format=None):
         instance = self.get_object(pk)
         serializer = self.serializer_class(instance)
@@ -188,11 +193,14 @@ class AdminUpdateDeleteView(APIView):
 
     def put(self, request, pk, format=None):
         instance = self.get_object(pk)
-        print(instance.user)
         serializer = AdminUpdateDeleteSerializer(instance, data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            data = {
+                "admin": serializer.data,
+                "admin_id": pk
+            }
+            return Response(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -226,6 +234,7 @@ class AdminLoginView(APIView):
                 'access': serializer.validated_data['access'],
                 'refresh': serializer.validated_data['refresh'],
                 'authenticatedUser': {
+                    'admin_id': user.admin.id,
                     'username': serializer.data['username'],
                     'role': serializer.data['role']
                 }
@@ -244,16 +253,21 @@ class ParentRegistrationView(APIView):
 
         if valid:
             serializer.save()
+            user = serializer.validated_data['user']
+            SendVerificationMail.send_mail(user)
+            user = User.objects.get(username=user['username'])
             status_code = status.HTTP_201_CREATED
 
             response = {
                 'success': True,
                 'statusCode': status_code,
-                'message': 'Parent successfully registered! you will be loggedin when we review your information',
-                'parent': serializer.data
+                'message': 'Parent successfully registered! we will mail you when we review your information',
+                'parent': serializer.data,
+                'parent_id': user.parent.id
             }
 
             return Response(response, status=status_code)
+
 
 
 class ParentUpdateDeleteView(APIView):
@@ -262,6 +276,8 @@ class ParentUpdateDeleteView(APIView):
 
     def get_object(self, pk):
         try:
+            obj = ParentProfile.objects.get(pk=pk)
+            self.check_object_permissions(self.request, obj)
             return ParentProfile.objects.get(pk=pk)
         except ParentProfile.DoesNotExist:
             raise Http404
@@ -274,9 +290,13 @@ class ParentUpdateDeleteView(APIView):
     def put(self, request, pk, format=None):
         instance = self.get_object(pk)
         serializer = ParentUpdateDeleteSerializer(instance, data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            data = {
+                "parent": serializer.data,
+                "parent_id": pk
+            }
+            return Response(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -310,6 +330,7 @@ class ParentLoginView(APIView):
                 'access': serializer.validated_data['access'],
                 'refresh': serializer.validated_data['refresh'],
                 'authenticatedUser': {
+                    'parent_id': user.parent.id,
                     'username': serializer.data['username'],
                     'role': serializer.data['role']
                 }
@@ -329,13 +350,17 @@ class SponserRegistrationView(APIView):
 
         if valid:
             serializer.save()
+            user = serializer.validated_data['user']
+            SendVerificationMail.send_mail(user)
+            user = User.objects.get(username=user['username'])
             status_code = status.HTTP_201_CREATED
 
             response = {
                 'success': True,
                 'statusCode': status_code,
-                'message': 'sponser successfully registered! you will be loggedin when we review your information',
-                'sponser': serializer.data
+                'message': 'Sponser successfully registered! we will mail you when we review your information',
+                'sponser': serializer.data,
+                'sponser_id': user.sponser.id
             }
 
             return Response(response, status=status_code)
@@ -347,6 +372,8 @@ class SponserUpdateDeleteView(APIView):
 
     def get_object(self, pk):
         try:
+            obj = SponserProfile.objects.get(pk=pk)
+            self.check_object_permissions(self.request, obj)
             return SponserProfile.objects.get(pk=pk)
         except SponserProfile.DoesNotExist:
             raise Http404
@@ -359,9 +386,13 @@ class SponserUpdateDeleteView(APIView):
     def put(self, request, pk, format=None):
         instance = self.get_object(pk)
         serializer = SponserUpdateDeleteSerializer(instance, data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            data = {
+                "sponser" : serializer.data,
+                "sponser_id": pk
+            }
+            return Response(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -395,6 +426,7 @@ class SponserLoginView(APIView):
                 'access': serializer.validated_data['access'],
                 'refresh': serializer.validated_data['refresh'],
                 'authenticatedUser': {
+                    'sponser_id': user.sponser.id,
                     'username': serializer.data['username'],
                     'role': serializer.data['role']
                 }
@@ -414,13 +446,17 @@ class StaffRegistrationView(APIView):
 
         if valid:
             serializer.save()
+            user = serializer.validated_data['user']
+            SendVerificationMail.send_mail(user)
+            user = User.objects.get(username=user['username'])
             status_code = status.HTTP_201_CREATED
 
             response = {
                 'success': True,
                 'statusCode': status_code,
-                'message': 'staff successfully registered! you will be loggedin when we review your information',
+                'message': 'Staff successfully registered! we will mail you when we review your information',
                 'staff': serializer.data,
+                'staff_id': user.staff.id
             }
 
             return Response(response, status=status_code)
@@ -432,6 +468,8 @@ class StaffUpdateDeleteView(APIView):
 
     def get_object(self, pk):
         try:
+            obj = StaffProfile.objects.get(pk=pk)
+            self.check_object_permissions(self.request, obj)
             return StaffProfile.objects.get(pk=pk)
         except StaffProfile.DoesNotExist:
             raise Http404
@@ -444,9 +482,13 @@ class StaffUpdateDeleteView(APIView):
     def put(self, request, pk, format=None):
         instance = self.get_object(pk)
         serializer = StaffUpdateDeleteSerializer(instance, data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+            data = {
+                "staff": serializer.data,
+                "staff_id": pk
+            }
+            return Response(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -480,6 +522,7 @@ class StaffLoginView(APIView):
                 'access': serializer.validated_data['access'],
                 'refresh': serializer.validated_data['refresh'],
                 'authenticatedUser': {
+                    'staff_id': user.staff.id,
                     'username': serializer.data['username'],
                     'role': serializer.data['role'],
                 }
