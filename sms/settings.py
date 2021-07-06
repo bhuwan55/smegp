@@ -92,6 +92,7 @@ DATABASES = {
         'HOST': 'sms.postgres.database.azure.com', #'localhost'
         'PORT': '5432',
     }
+}
 
 
 SIMPLE_JWT = {
