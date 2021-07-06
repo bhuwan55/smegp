@@ -95,7 +95,6 @@ DATABASES = {
     }
 }
 
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
@@ -184,14 +183,12 @@ STATIC_URL = '/static/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.outlook.office365.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER  = 'nepal.techs1@smegp.com'
-EMAIL_HOST_PASSWORD = '12345678'
+EMAIL_HOST_USER = 'awsumbj2054@gmail.com'
+EMAIL_HOST_PASSWORD = 'sznptkejiiummtyc'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 DEFAULT_TO_EMAIL = EMAIL_HOST_USER
-
-FROM_EMAIL = "SMSApp@smegp.com"
 
 
 
