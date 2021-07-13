@@ -88,10 +88,10 @@ WSGI_APPLICATION = 'sms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'smegp', #'postgres'
+        'NAME': 'postgres', #'smegp'
         'USER': 'postgres', 
-        'PASSWORD': 'postgres', #'Admin12345'
-        'HOST': 'localhost', #'sms.postgres.database.azure.com'
+        'PASSWORD': 'Admin12345', #'postgres'
+        'HOST': 'sms.postgres.database.azure.com', #'localhost'
         'PORT': '5432',
     }
 }
@@ -185,14 +185,12 @@ STATIC_URL = '/static/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.outlook.office365.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER  = 'nepal.techs1@smegp.com'
-EMAIL_HOST_PASSWORD = '12345678'
+EMAIL_HOST_USER = 'awsumbj2054@gmail.com'
+EMAIL_HOST_PASSWORD = 'sznptkejiiummtyc'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 DEFAULT_TO_EMAIL = EMAIL_HOST_USER
-
-FROM_EMAIL = "SMSApp@smegp.com"
 
 
 
