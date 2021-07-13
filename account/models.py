@@ -118,7 +118,9 @@ class ParentProfile(models.Model):
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student')
     monthly_fee = models.DecimalField(max_digits=7, decimal_places=2,null=True, blank=True)
-    grade = models.ForeignKey('grade.Grade', on_delete=models.CASCADE)
+    grade = models.ForeignKey('grade.Grade', on_delete=models.CASCADE,related_name='student')
+    parent = models.ForeignKey('ParentProfile', on_delete=models.CASCADE, related_name='student')
+    sponser = models.ForeignKey('SponserProfile', on_delete=models.DO_NOTHING, related_name='student', null=True, blank=True)
 
 
     def __str__(self):

@@ -32,3 +32,10 @@ class GradeCreateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Grade with same name cannot Exists")
         return data
 
+
+class GradeShowSerializer(serializers.ModelSerializer):
+    """ used to show grade with student list"""
+    id = serializers.IntegerField()
+    class Meta:
+        model = Grade
+        fields = ['id','name',]

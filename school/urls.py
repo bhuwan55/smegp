@@ -11,5 +11,6 @@ urlpatterns = [
     path('school/user/', include('account.urls')),
     path('school/grade/', include('grade.urls')),
     path('school/exam/', include('exam.urls')),
+    path('school/payment/', include('payment.urls')),
 
 ]

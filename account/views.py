@@ -4,16 +4,17 @@ from .serializers import UserLoginSerializer, UserRegistrationSerializer, \
     AdminRegisterSerializer,ParentRegisterSerializer, SponserRegisterSerializer,\
         StaffRegisterSerializer, UserUpdateSerializer, AdminUpdateDeleteSerializer,\
             ParentUpdateDeleteSerializer, SponserUpdateDeleteSerializer, StaffUpdateDeleteSerializer,\
-                ChangePasswordSerializer
+                ChangePasswordSerializer, StudentRegisterSerializer, StudentListSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .models import User, AdminProfile, ParentProfile, SponserProfile, StaffProfile
+from .models import User, AdminProfile, ParentProfile, SponserProfile, StaffProfile, StudentProfile
 from django.contrib.auth import authenticate, login, logout
 from django.http import Http404
 from .permissions import IsOwnerOrNo, IsOwnerOrNoROles
 from .sendmail import SendVerificationMail
+from grade.models import Grade
 
 
 class UserRegistrationView(APIView):
@@ -529,3 +530,136 @@ class StaffLoginView(APIView):
             }
 
             return Response(response, status=status_code)
+
+
+class StudentRegistrationView(APIView):
+    serializer_class = StudentRegisterSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        try:
+            parent = request.user.parent
+        except:
+            error = "You donot have permission."
+            return Response(error)
+        school = parent.school
+        grades = school.grade.all()
+        grade={}
+        for value in grades:
+            grade[value.id]=value.name
+        return Response({
+            "grades": grade,
+            "parent_id": parent.id,
+            "school_id": school.id
+        })
+
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+
+        if valid:
+            serializer.save()
+            user = serializer.validated_data['user']
+            # SendVerificationMail.send_mail(user)
+            user = User.objects.get(username=user['username'])
+            status_code = status.HTTP_201_CREATED
+
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Student successfully registered!, we will review data of the student.',
+                'staff': serializer.data,
+                'staff_id': user.student.id
+            }
+
+            return Response(response, status=status_code)
+
+
+class StudentListView(APIView):
+    """View to show student list for payment"""
+    serializer_class = StudentListSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        if (request.user.role == 2 or request.user.role == 5):
+            return Response({"message":"You don't have permission"})
+        if request.user.role ==1:
+            school = request.user.admin.school
+            grade = school.grade.all()
+            grades = {}
+            for grade in grade:
+                students = []
+                student = grade.student.all()
+                for student in student:
+                    x = StudentListSerializer(student)
+                    students.append(x.data)
+                x = grade.name
+                grades[x] = students
+            return Response({"grades": grades})
+        if request.user.role == 3:
+            student = request.user.parent.student.all()
+            students = []
+            for student in student:
+                x = StudentListSerializer(student)
+                students.append(x.data)
+            return Response({"students": students})
+        if request.user.role == 4:
+            student = request.user.sponser.student.all()
+            students = []
+            for student in student:
+                x = StudentListSerializer(student)
+                students.append(x.data)
+            return Response({"students": students})
+
+
+class StudentAllView(APIView):
+    """this view is to show sponser list of students"""
+    serializer_class = StudentListSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        if request.user.role == 4:
+            grade = request.user.sponser.school.grade.all()
+            grades = {}
+            for grade in grade:
+                students = []
+                student = grade.student.all()
+                for student in student:
+                    x = StudentListSerializer(student)
+                    students.append(x.data)
+                x = grade.name
+                grades[x] = students
+            return Response({"grades": grades})
+        else:
+            return Response({"message":"You don't have permission."})
+
+
+class StudentDetailView(APIView):
+    serializer_class = StudentListSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self, pk):
+        try:
+            obj = StudentProfile.objects.get(pk=pk)
+            return obj
+        except StudentProfile.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk, format=None):
+        if request.user.role == 1:
+            instance = self.get_object(pk)
+            if request.user.admin.school == instance.grade.school:
+                student = StudentListSerializer(instance)
+                return Response({"student_detail":student.data})
+            else:
+                return Response({"message":"You don't have permission."})
+        elif request.user.role == 4:
+            instance = self.get_object(pk)
+            if request.user.sponser.school == instance.grade.school:
+                student = StudentListSerializer(instance)
+                return Response({"student_detail":student.data})
+            else:
+                return Response({"message":"You don't have permission."})
+        else:
+            return Response({"message":"You don't have permission."})

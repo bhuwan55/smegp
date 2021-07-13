@@ -57,7 +57,7 @@ class ExamAPIView(APIView):
 
 class ExamListAPIView(APIView):
     serializer_class = ExamListSerializer
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         role = request.user.role

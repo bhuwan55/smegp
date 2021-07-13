@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import update_last_login
-from .models import User, AdminProfile, ParentProfile, StaffProfile, SponserProfile
+from .models import User, AdminProfile, ParentProfile, StaffProfile, SponserProfile, StudentProfile
 from django.contrib.auth import authenticate, login
+from grade.models import Grade
 from school.models import  School
 from .sendmail import SendVerificationMail
 from django.core.exceptions import ValidationError
+from grade.serializers import GradeShowSerializer
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -152,9 +154,9 @@ class AdminUpdateDeleteSerializer(serializers.ModelSerializer):
         user_data = validated_data['user']
         email = user_data["email"]
         contact = user_data['contact_number']
-        email_exists = User.objects.filter (email=email).exclude (id=self.instance.user.pk) # excluding the current user from queryset
+        email_exists = User.objects.filter (email=email).exclude(id=self.instance.user.pk) # excluding the current user from queryset
         if self.instance.user and self.instance.user.pk and not email_exists:
-            contact_exists = User.objects.filter (contact_number=contact).exclude (pk=self.instance.user.pk)
+            contact_exists = User.objects.filter (contact_number=contact).exclude(pk=self.instance.user.pk)
             if not contact_exists:
                 user = User.objects.get(id=self.instance.user.id)
                 user.first_name = user_data.get('first_name', user.first_name)
@@ -372,3 +374,41 @@ class StaffUpdateDeleteSerializer(serializers.ModelSerializer):
                 raise ValidationError("User with this Contact Number already exists.")
         else:
             raise ValidationError("User with this Email already exists.")
+
+
+class StudentRegisterSerializer(serializers.ModelSerializer):
+    grade_id = serializers.IntegerField()
+    parent_id = serializers.IntegerField()
+    user = UserRegistrationSerializer()
+    class Meta:
+        model = StudentProfile
+        fields = ('user', 'grade_id','parent_id')
+
+    def create(self, validated_data):
+        grade_id = validated_data.get('grade_id')
+        try:
+            grade = Grade.objects.get(id = grade_id)
+        except Grade.DoesNotExist:
+            raise serializers.ValidationError("Grade with given Id doesnot Exists.")
+        
+        user = UserRegistrationSerializer(data=validated_data.get('user'))
+        valid = user.is_valid(raise_exception=True)
+        if valid:
+            user.save()
+        user = User.objects.get(username=user.validated_data['username'])
+        parent = ParentProfile.objects.get(id = validated_data['parent_id'])
+
+        student = StudentProfile.objects.create(user=user, grade=grade, monthly_fee=0,parent=parent)
+        user.role = 5
+        user.save()
+        return student
+
+
+class StudentListSerializer(serializers.ModelSerializer):
+    user = UserUpdateSerializer()
+    id = serializers.IntegerField()
+    grade = GradeShowSerializer()
+    class Meta:
+        model = StudentProfile
+        fields = "__all__"
+        extra_fields = ('id',)
