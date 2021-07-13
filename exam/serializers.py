@@ -48,7 +48,6 @@ class ExamViewSerializer(serializers.ModelSerializer):
         return exam
     
     def update(self, instance ,validated_data):
-        print("hello")
         exam = Exam.objects.get(id=validated_data['id'])
         exam.start_date = validated_data.get('start_date', exam.start_date)
         exam.end_date = validated_data.get('end_date', exam.end_date)
