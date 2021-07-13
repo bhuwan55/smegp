@@ -13,6 +13,13 @@ class GradeApiView(APIView):
     serializer_class = GradeCreateSerializer
     permission_classes = (IsAuthenticated, IsAdminOrNo)
 
+    def get(self,request):
+        response = {
+                'status': status.HTTP_200_OK,
+                'school_id': request.user.admin.school.id,
+            }
+        return Response(response, status=status.HTTP_200_OK)
+
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
