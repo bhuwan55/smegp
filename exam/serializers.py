@@ -46,23 +46,29 @@ class ExamViewSerializer(serializers.ModelSerializer):
         grade = Grade.objects.get(id=validated_data.get('grade_id'))
         exam = grade.exam.all()
         return exam
-    
+
+
+class ExamUpdateDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exam
+        fields = (
+            'start_date',
+            'end_date',
+            'exam_type',
+        )
+
     def update(self, instance ,validated_data):
-        exam = Exam.objects.get(id=validated_data['id'])
-        exam.start_date = validated_data.get('start_date', exam.start_date)
-        exam.end_date = validated_data.get('end_date', exam.end_date)
-        exam.exam_type = validated_data.get('exam_type', exam.exam_type)
-        return exam
+        instance.start_date = validated_data.get('start_date', instance.start_date)
+        instance.end_date = validated_data.get('end_date', instance.end_date)
+        instance.exam_type = validated_data.get('exam_type', instance.exam_type)
+        instance.save()
+        return instance
     
     def validate(self, data, *args):
         start_date = data['start_date']
         end_date = data['end_date']
         if start_date>end_date:
             raise serializers.ValidationError("Start date must be less than end date")
-        try:
-            exam = Exam.objects.get(id=data['id'])
-        except Exam.DoesNotExist:
-            raise serializers.ValidationError("No Exam of given id exists")
         return data
 
 

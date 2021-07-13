@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework import generics
 from django.http import Http404
-from .serializers import ExamCreateSerializer, ExamListSerializer, ExamViewSerializer
+from .serializers import ExamCreateSerializer, ExamListSerializer, ExamViewSerializer, ExamUpdateDeleteSerializer
 from .models import Exam
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -106,7 +106,7 @@ class ExamListAPIView(APIView):
             return Response(response)
 
 class ExamUpdateDeleteAPIView(APIView):
-    serializer_class = ExamViewSerializer
+    serializer_class = ExamUpdateDeleteSerializer
     permission_classes = (IsAuthenticated, IsAdminOrNo, IsOfThisSchool)
 
     def get_object(self, pk):
@@ -116,17 +116,23 @@ class ExamUpdateDeleteAPIView(APIView):
             return obj
         except Exam.DoesNotExist:
             raise Http404
-    
+
+    def get(self, request,pk):
+        exam = self.get_object(pk)
+        x = ExamViewSerializer(exam)
+        return Response({"exam":x.data})
+
     def put(self, request, pk, format=None):
         instance = self.get_object(pk)
-        serializer = ExamViewSerializer(instance, data=request.data)
+        serializer = self.serializer_class(instance, data=request.data)
         valid = serializer.is_valid(raise_exception=True)
         if valid:
             serializer.save()
+            x = ExamViewSerializer(instance)
             response = {
                 'success': True,
                 'message': 'Changes Saved to Exam!',
-                'exam': serializer.data,
+                'exam': x.data,
             }
             return Response(response)
 
