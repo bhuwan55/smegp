@@ -83,8 +83,8 @@ class ExamListAPIView(APIView):
             grade[value.id] = value.name
         response={
             "school": school.id,
-            "grades": grade,
-            "user_type": role
+#             "grades": grade,
+#             "user_type": role
         }
         return Response(response)
             
