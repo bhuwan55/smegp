@@ -101,7 +101,7 @@ class ExamListAPIView(APIView):
             response = {
                 'success': True,
                 'message': 'Exam list!',
-                'exam': E,
+#                 'exam': E,
             }
             return Response(response)
 
