@@ -4,7 +4,8 @@ from .serializers import UserLoginSerializer, UserRegistrationSerializer, \
     AdminRegisterSerializer,ParentRegisterSerializer, SponserRegisterSerializer,\
         StaffRegisterSerializer, UserUpdateSerializer, AdminUpdateDeleteSerializer,\
             ParentUpdateDeleteSerializer, SponserUpdateDeleteSerializer, StaffUpdateDeleteSerializer,\
-                ChangePasswordSerializer, StudentRegisterSerializer, StudentListSerializer
+                ChangePasswordSerializer, StudentRegisterSerializer, StudentListSerializer,\
+                    SelectStudentSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -555,6 +556,11 @@ class StudentRegistrationView(APIView):
 
 
     def post(self, request):
+        try:
+            parent = request.user.parent
+        except:
+            error = "You donot have permission."
+            return Response(error)
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
 
@@ -626,8 +632,9 @@ class StudentAllView(APIView):
                 students = []
                 student = grade.student.all()
                 for student in student:
-                    x = StudentListSerializer(student)
-                    students.append(x.data)
+                    if student.sponser != request.user.sponser:
+                        x = StudentListSerializer(student)
+                        students.append(x.data)
                 x = grade.name
                 grades[x] = students
             return Response({"grades": grades})
@@ -636,6 +643,7 @@ class StudentAllView(APIView):
 
 
 class StudentDetailView(APIView):
+    """User it for student Update too"""
     serializer_class = StudentListSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -659,7 +667,41 @@ class StudentDetailView(APIView):
             if request.user.sponser.school == instance.grade.school:
                 student = StudentListSerializer(instance)
                 return Response({"student_detail":student.data})
+        elif request.user.role == 3:
+            instance = self.get_object(pk)
+            if request.user.parent.school == instance.grade.school:
+                if request.user.parent == instance.parent:
+                    student = StudentListSerializer(instance)
+                    return Response({"student_detail":student.data})
+                else:
+                    return Response({"message":"You don't have permission."})
             else:
                 return Response({"message":"You don't have permission."})
         else:
             return Response({"message":"You don't have permission."})
+
+
+class StudentSelectView(APIView):
+    """to select student for sponser to sponser """
+    serializer_class = SelectStudentSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self,request):
+        if request.user.role == 4:
+            serializer = self.serializer_class(data=request.data)
+            valid = serializer.is_valid(raise_exception=True)
+            if valid:
+                student = StudentProfile.objects.get(id=serializer.data['id'])
+                student.sponser = request.user.sponser
+                student.save()
+                status_code = status.HTTP_200_OK
+
+                response = {
+                    'success': True,
+                    'statusCode': status_code,
+                    'message': 'Student successfully added to sponser list.',
+                }
+
+                return Response(response, status=status_code)
+            else:
+                return Response({"message":"You don't have permission."})

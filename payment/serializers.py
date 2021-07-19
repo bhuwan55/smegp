@@ -28,8 +28,9 @@ class ShowCategorySerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     class Meta:
         model = Category
-        fields = ["id","name","amount"]
+        fields = ["id","name","amount","grade"]
         read_only_fields = ['id',]
+        depth = 1
 
 
 

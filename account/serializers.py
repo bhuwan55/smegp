@@ -412,3 +412,10 @@ class StudentListSerializer(serializers.ModelSerializer):
         model = StudentProfile
         fields = "__all__"
         extra_fields = ('id',)
+
+
+class SelectStudentSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    class Meta:
+        model = StudentProfile
+        fields = ["id",]

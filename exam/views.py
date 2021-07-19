@@ -86,7 +86,7 @@ class ExamListAPIView(APIView):
             "grades": grade,
             "user_type": role
         }
-        return Response(response)
+        return Response(response, status=status.HTTP_200_OK)
             
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
