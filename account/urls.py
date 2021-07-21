@@ -6,7 +6,8 @@ from .views import UserLoginView, UserRegistrationView, UserLogoutView, AdminReg
                                         ,AdminUpdateDeleteView, ParentUpdateDeleteView, SponserUpdateDeleteView,\
                                             StaffUpdateDeleteView, ChangePasswordView, StudentRegistrationView,\
                                                 StudentListView, StudentAllView, StudentDetailView,\
-                                                    StudentSelectView
+                                                    StudentSelectView, SponserApproveView, ParentApproveView,\
+                                                        StaffApproveView, StudentApproveView
 
 app_name = 'account'
 
@@ -43,6 +44,11 @@ urlpatterns = [
     path('all/student/', StudentAllView.as_view(), name="all_student"),
     path('detail/student/<int:pk>/', StudentDetailView.as_view(), name="detail_student"),
     path('select/student/', StudentSelectView.as_view(), name="select_student"),
+
+    path('approve/sponser/', SponserApproveView.as_view(), name="approve_sponser"),
+    path('approve/parent/', ParentApproveView.as_view(), name="approve_parent"),
+    path('approve/staff/', StaffApproveView.as_view(), name="approve_staff"),
+    path('approve/student/', StudentApproveView.as_view(), name="approve_student"),
 
 
 ]

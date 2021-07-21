@@ -107,8 +107,8 @@ class AdminProfile(models.Model):
 
 class ParentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='parent')
-    school = models.ForeignKey('school.School', on_delete=models.CASCADE)
-
+    school = models.ForeignKey('school.School', on_delete=models.CASCADE,related_name='parent')
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
@@ -121,6 +121,7 @@ class StudentProfile(models.Model):
     grade = models.ForeignKey('grade.Grade', on_delete=models.CASCADE,related_name='student')
     parent = models.ForeignKey('ParentProfile', on_delete=models.CASCADE, related_name='student')
     sponser = models.ForeignKey('SponserProfile', on_delete=models.DO_NOTHING, related_name='student', null=True, blank=True)
+    is_approved = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -130,7 +131,8 @@ class StudentProfile(models.Model):
 
 class SponserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='sponser')
-    school = models.ForeignKey('school.School', on_delete=models.CASCADE)
+    school = models.ForeignKey('school.School', on_delete=models.CASCADE, related_name='sponser')
+    is_approved = models.BooleanField(default=False)
 
 
     def __str__(self):
@@ -145,10 +147,11 @@ class StaffProfile(models.Model):
         (2, 'Non-Teaching')
     }
 
-    school = models.ForeignKey('school.School', on_delete=models.CASCADE)
+    school = models.ForeignKey('school.School', on_delete=models.CASCADE, related_name='staff')
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff')
     monthly_salary = models.DecimalField(max_digits=8, decimal_places=2,null=True, blank=True)
     staff_type = models.PositiveSmallIntegerField(choices=TYPE_CHOICES, blank=True, null=True, default=1)
+    is_approved = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username

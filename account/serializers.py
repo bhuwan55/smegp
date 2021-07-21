@@ -84,6 +84,18 @@ class UserLoginSerializer(serializers.Serializer):
 
         if user is None:
             raise serializers.ValidationError("Invalid login credentials")
+        if user.role==3:
+            is_approved = user.parent.is_approved
+        elif user.role==2:
+            is_approved = user.staff.is_approved
+        elif user.role==4:
+            is_approved = user.sponser.is_approved
+        elif user.role==1:
+            is_approved = True
+        elif user.role==5:
+            raise serializers.ValidationError("No login for student")
+        if is_approved==False:
+            raise serializers.ValidationError("Your Account needs to be Approved by Admin to login!!!")
         try:
             refresh = RefreshToken.for_user(user)
             refresh_token = str(refresh)
@@ -243,6 +255,21 @@ class ParentUpdateDeleteSerializer(serializers.ModelSerializer):
             raise ValidationError("User with this Email already exists")
 
 
+class ParentSerializer(serializers.ModelSerializer):
+    """To view parent detail"""
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = ParentProfile
+        fields = "__all__"
+        extra_fields = ('id',)
+
+
+class ParentApproveSerializer(serializers.Serializer):
+    parent_id = serializers.IntegerField()
+    class Meta:
+        fields = {'parent_id',}
+
 
 class SponserRegisterSerializer(serializers.ModelSerializer):
     school_id = serializers.IntegerField()
@@ -305,6 +332,22 @@ class SponserUpdateDeleteSerializer(serializers.ModelSerializer):
                 raise ValidationError("User with this Contact Number already exists.")
         else:
             raise ValidationError("User with this Email already exists.")
+
+
+class SponserSerializer(serializers.ModelSerializer):
+    """To view sponser detail"""
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = SponserProfile
+        fields = "__all__"
+        extra_fields = ('id',)
+
+
+class SponserApproveSerializer(serializers.Serializer):
+    sponser_id = serializers.IntegerField()
+    class Meta:
+        fields = {'sponser_id',}
 
 
 class StaffRegisterSerializer(serializers.ModelSerializer):
@@ -376,6 +419,22 @@ class StaffUpdateDeleteSerializer(serializers.ModelSerializer):
             raise ValidationError("User with this Email already exists.")
 
 
+class StaffSerializer(serializers.ModelSerializer):
+    """To view staff detail"""
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = StaffProfile
+        fields = "__all__"
+        extra_fields = ('id',)
+
+
+class StaffApproveSerializer(serializers.Serializer):
+    staff_id = serializers.IntegerField()
+    class Meta:
+        fields = {'staff_id',}
+
+
 class StudentRegisterSerializer(serializers.ModelSerializer):
     grade_id = serializers.IntegerField()
     parent_id = serializers.IntegerField()
@@ -402,6 +461,22 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
         user.role = 5
         user.save()
         return student
+
+
+class StudentSerializer(serializers.ModelSerializer):
+    """To view Student detail"""
+    user = UserUpdateSerializer()
+
+    class Meta:
+        model = StudentProfile
+        fields = "__all__"
+        extra_fields = ('id',)
+
+
+class StudentApproveSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField()
+    class Meta:
+        fields = {'student_id',}
 
 
 class StudentListSerializer(serializers.ModelSerializer):
