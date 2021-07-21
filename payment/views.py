@@ -59,7 +59,7 @@ class CreatePaymentView(APIView):
         valid = serializer.is_valid(raise_exception=True)
 
         if valid:
-            serializer.save()
+            payment = serializer.save()
             status_code = status.HTTP_201_CREATED
 
             response = {
@@ -67,6 +67,7 @@ class CreatePaymentView(APIView):
                 'statusCode': status_code,
                 'message': 'Payment Sucessfully Created!!!',
                 'detail': serializer.data,
+                'payment_id':payment.id
             }
 
             return Response(response, status=status_code)
@@ -95,8 +96,15 @@ class UpdateDeletePaymentAPIView(APIView):
         serializer = UpdateDeletePaymentSerializer(instance, data=request.data)
         valid = serializer.is_valid(raise_exception=True)
         if serializer.is_valid():
+            print(serializer.data)
+            instance.date = serializer.data["date"]
+            instance.total_amount = serializer.data['total_amount']
+            instance.status = serializer.data['status']
+            instance.save()
+            x = UpdateDeletePaymentSerializer(instance)
             data = {
-                "payment": "try deleting and creating one."
+                "message": "Updated sucessfully.",
+                "payment": x.data
             }
             return Response(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -127,11 +135,15 @@ class ShowPaymentView(APIView):
             if (request.user.role==1):
                 if(request.user.admin.school!=student.grade.school):
                     return Response({"message":"Permission denied.Not allowed."})
-            if(request.user.role==3):
+            elif(request.user.role==3):
                 if(request.user.parent.school!=student.grade.school):
                     return Response({"message":"Permission denied.Not allowed."})
-            if(request.user.role==4):
+                if(request.user.parent != student.parent):
+                    return Response({"message":"Permission denied.Not allowed."})
+            elif(request.user.role==4):
                 if(request.user.sponser.school!=student.grade.school):
+                    return Response({"message":"Permission denied.Not allowed."})
+                if(request.user.sponser != student.sponser):
                     return Response({"message":"Permission denied.Not allowed."})
             try:
                 payment = student.payment.all()
