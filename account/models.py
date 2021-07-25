@@ -99,6 +99,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 class AdminProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admin')
     school = models.ForeignKey('school.School', on_delete=models.CASCADE)
+    is_approved = models.BooleanField(default=False)
+
 
 
     def __str__(self):

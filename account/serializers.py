@@ -91,11 +91,11 @@ class UserLoginSerializer(serializers.Serializer):
         elif user.role==4:
             is_approved = user.sponser.is_approved
         elif user.role==1:
-            is_approved = True
+            is_approved = user.admin.is_approved
         elif user.role==5:
             raise serializers.ValidationError("No login for student")
         if is_approved==False:
-            raise serializers.ValidationError("Your Account needs to be Approved by Admin to login!!!")
+            raise serializers.ValidationError("Your Account needs to be Approved to login!!!Please Wait.")
         try:
             refresh = RefreshToken.for_user(user)
             refresh_token = str(refresh)
@@ -142,7 +142,7 @@ class AdminRegisterSerializer(serializers.ModelSerializer):
         user = User.objects.get(username=user.validated_data['username'])
 
         school_id = validated_data.get('school_id')
-        school = School.objects.get(id = school_id)
+        school = School.objects.get(unique_id = school_id)
 
         admin = AdminProfile.objects.create(user=user, school=school)
         user.role = 1
@@ -207,7 +207,7 @@ class ParentRegisterSerializer(serializers.ModelSerializer):
         user = User.objects.get(username=user.validated_data['username'])
 
         school_id = validated_data.get('school_id')
-        school = School.objects.get(id = school_id)
+        school = School.objects.get(unique_id = school_id)
 
         parent = ParentProfile.objects.create(user=user, school=school)
         user.role = 3
@@ -286,7 +286,7 @@ class SponserRegisterSerializer(serializers.ModelSerializer):
         user = User.objects.get(username=user.validated_data['username'])
 
         school_id = validated_data.get('school_id')
-        school = School.objects.get(id = school_id)
+        school = School.objects.get(unique_id = school_id)
 
         sponser = SponserProfile.objects.create(user=user, school=school)
         user.role = 4
@@ -366,7 +366,7 @@ class StaffRegisterSerializer(serializers.ModelSerializer):
         user = User.objects.get(username=user.validated_data['username'])
 
         school_id = validated_data.get('school_id')
-        school = School.objects.get(id = school_id)
+        school = School.objects.get(unique_id = school_id)
 
         staff = StaffProfile.objects.create(user=user, school=school, staff_type=validated_data.get('staff_type')\
             , monthly_salary=0)
