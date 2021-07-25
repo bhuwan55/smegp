@@ -24,9 +24,11 @@ class ExamAPIView(APIView):
                 return Response(message)
             school = admin.school
             grades = school.grade.all()
-            grade = {}
+            grade = []
             for value in grades:
-                grade[value.id] = value.name
+                if value:
+                    x = {"id":value.id,"name":value.name}
+                    grade.append(x)
             response={
                 "school": school.id,
                 "grades": grade
@@ -78,9 +80,11 @@ class ExamListAPIView(APIView):
             return Response(response, status=HTTP_400_BAD_REQUEST)
         grades = school.grade.all()
 
-        grade = {}
+        grade = []
         for value in grades:
-            grade[value.id] = value.name
+            if value:
+                x = {"id":value.id,"name":value.name}
+                grade.append(x)
         response={
             "school": school.id,
             "grades": grade,
@@ -94,10 +98,10 @@ class ExamListAPIView(APIView):
         if valid:
             grade = Grade.objects.get(id=serializer.data.get('grade_id'))
             exams = grade.exam.all()
-            E = {}
+            E = []
             for x in  exams:
                 exam = ExamViewSerializer(x)
-                E[exam.data.get('id')] = exam.data
+                E.append(exam.data)
             response = {
                 'success': True,
                 'message': 'Exam list!',
