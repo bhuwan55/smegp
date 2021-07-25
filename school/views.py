@@ -31,12 +31,13 @@ class ChooseSchoolView(APIView):
         if valid:
             id = serializer.validated_data['id']
             try:
-                school = School.objects.get(id=id)
+                school = School.objects.get(unique_id=id)
             except School.DoesNotExist:
                 error = "school does not exists"
                 return Response(error)
             data = {
             "school":school.name,
+            "id":school.unique_id
             }
         return Response(data)
 
