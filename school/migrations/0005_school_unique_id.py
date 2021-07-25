@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='school',
             name='unique_id',
-            field=models.CharField(blank=True, default=school.models.create_new_ref_number, editable=False, max_length=6, unique=True),
+            field=models.CharField(blank=True, editable=False, max_length=6, unique=True),
         ),
     ]
