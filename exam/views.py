@@ -83,8 +83,8 @@ class ExamListAPIView(APIView):
             grade[value.id] = value.name
         response={
             "school": school.id,
-#             "grades": grade,
-#             "user_type": role
+            "grades": grade,
+            "user_type": role
         }
         return Response(response, status=status.HTTP_200_OK)
             
@@ -101,7 +101,7 @@ class ExamListAPIView(APIView):
             response = {
                 'success': True,
                 'message': 'Exam list!',
-#                 'exam': E,
+                'exam': E,
             }
             return Response(response)
 
