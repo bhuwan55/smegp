@@ -16,7 +16,6 @@ class School(models.Model):
            max_length = 6,
            blank=True,
            unique=True,
-        #    default=create_new_ref_number,
       )
 
     def __str__(self):
